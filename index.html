@@ -1,182 +1,208 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coder Avim — Master Bot Hub</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-  body { background: #0b0f19; color: #f1f5f9; padding: 16px; min-height: 100vh; }
-  .container { max-width: 540px; margin: 0 auto; }
-  header { display: flex; justify-content: space-between; align-items: center; background: #131b2e; padding: 14px 16px; border-radius: 14px; border: 1px solid #1e293b; margin-bottom: 14px; }
-  h1 { font-size: 18px; color: #38bdf8; }
-  .sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
-  .btn-group { display: flex; gap: 8px; }
-  button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; padding: 9px 12px; transition: 0.2s; }
-  .btn-wake-all { background: #2563eb; color: #fff; }
-  .btn-wake-all:active { transform: scale(0.97); }
-  .btn-settings { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; }
-  .card { background: #131b2e; border: 1px solid #1e293b; border-radius: 14px; padding: 14px; margin-bottom: 12px; }
-  .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .bot-title { font-size: 16px; font-weight: 700; color: #f8fafc; }
-  .status { font-size: 12px; padding: 4px 10px; border-radius: 20px; background: #1e293b; color: #fbbf24; font-weight: 600; }
-  .status.online { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-  .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
-  input[type="text"], input[type="url"] { flex: 1; background: #0b0f19; border: 1px solid #334155; color: #fff; padding: 10px 12px; border-radius: 10px; font-size: 13px; outline: none; }
-  input:focus { border-color: #38bdf8; }
-  .btn-send { background: #0284c7; color: #fff; white-space: nowrap; }
-  .actions { display: flex; justify-content: space-between; align-items: center; }
-  .tg-link { color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600; }
-  .msg-log { font-size: 12px; color: #94a3b8; }
-  #settingsModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); padding: 16px; z-index: 50; overflow-y: auto; }
-  .modal-box { background: #131b2e; border: 1px solid #334155; border-radius: 16px; max-width: 480px; margin: 20px auto; padding: 18px; }
-  .modal-box h2 { font-size: 17px; color: #38bdf8; margin-bottom: 12px; }
-  .field { margin-bottom: 12px; }
-  .field label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 4px; }
-  .field input { width: 100%; margin-bottom: 6px; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-  .btn-save { background: #10b981; color: #fff; }
-  .footer-note { text-align: center; font-size: 12px; color: #64748b; margin-top: 16px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coder Avim • Animated Master Bot Hub</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #1e1b4b, #090d16 60%);
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+    .bg-glow {
+      position: fixed; width: 280px; height: 280px; border-radius: 50%;
+      background: rgba(56, 189, 248, 0.15); filter: blur(80px);
+      top: -60px; left: -60px; z-index: -1; animation: floatGlow 6s infinite alternate;
+    }
+    @keyframes floatGlow { from { transform: translate(0, 0); } to { transform: translate(40px, 50px); } }
+    .container { max-width: 540px; margin: auto; }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px);
+      padding: 18px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 16px;
+    }
+    .header h1 {
+      margin: 0; font-size: 20px;
+      background: linear-gradient(90deg, #38bdf8, #a855f7, #38bdf8);
+      background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+    @keyframes shine { to { background-position: 200% center; } }
+    .timer-bar {
+      background: rgba(30, 41, 59, 0.7); border: 1px solid #334155;
+      padding: 10px 14px; border-radius: 14px; font-size: 12px; color: #cbd5e1;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+    }
+    .btn { border: none; padding: 10px 14px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.2s transform; }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: linear-gradient(135deg, #38bdf8, #6366f1); color: #fff; }
+    .btn-wake {
+      background: linear-gradient(135deg, #22c55e, #10b981); color: #052e16;
+      width: 100%; margin-bottom: 16px; font-size: 14px; padding: 14px;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+    }
+    .card {
+      background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 18px;
+      padding: 16px; margin-bottom: 14px; transition: 0.3s;
+      animation: slideUp 0.4s ease;
+    }
+    .card:hover { border-color: #38bdf8; transform: translateY(-2px); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .bot-title { font-size: 16px; font-weight: 700; color: #f1f5f9; }
+    .status { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: #1e293b; display: flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); } 70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+    .url-text { font-size: 12px; color: #64748b; word-break: break-all; margin-bottom: 12px; }
+    .row { display: flex; gap: 8px; }
+    input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13px; }
+    .actions { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-tg { background: #0284c7; color: #fff; text-decoration: none; text-align: center; flex: 1; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 600; }
+    .btn-del { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 9px 12px; border-radius: 10px; cursor: pointer; }
+    .modal { display: none; background: #1e293b; padding: 16px; border-radius: 16px; margin-bottom: 16px; border: 1px solid #38bdf8; }
+    .modal input { margin-bottom: 10px; }
+  </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div>
-      <h1>⚡ Coder Avim Master Hub</h1>
-      <div class="sub">Sabhi Telegram Bots ko 1-Click me Jagayein</div>
+  <div class="bg-glow"></div>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>⚡ CODER AVIM HUB</h1>
+        <p style="margin:4px 0 0;font-size:12px;color:#94a3b8;">Auto 5-Min Keep-Alive Engine</p>
+      </div>
+      <button class="btn btn-primary" onclick="toggleAddForm()">+ Add Bot</button>
     </div>
-    <div class="btn-group">
-      <button class="btn-wake-all" onclick="wakeAll()">🚀 Wake All</button>
-      <button class="btn-settings" onclick="openSettings()">⚙️ Links</button>
+
+    <div class="timer-bar">
+      <span>🔄 Auto-Ping Every 5 Mins</span>
+      <span id="countdown" style="color:#38bdf8;font-weight:bold;">Next Ping: 05:00</span>
     </div>
-  </header>
 
-  <div id="botList"></div>
-
-  <div class="footer-note">Powered by Coder Avim • Auto Wake-Up Active</div>
-</div>
-
-<div id="settingsModal">
-  <div class="modal-box">
-    <h2>⚙️ Apne Bots ke Links Set Karein</h2>
-    <div id="settingsFields"></div>
-    <div class="modal-footer">
-      <button class="btn-settings" onclick="closeSettings()">Cancel</button>
-      <button class="btn-save" onclick="saveSettings()">💾 Save Links</button>
+    <div id="addForm" class="modal">
+      <h3 style="margin:0 0 10px;font-size:15px;">➕ Naya Bot Jodein</h3>
+      <input id="bName" placeholder="Bot Name (e.g. Dynamic QR Bot)" />
+      <input id="bUrl" placeholder="Render Link (https://...onrender.com)" />
+      <input id="bUser" placeholder="Telegram Username (@YourBot)" />
+      <div class="row">
+        <button class="btn btn-primary" style="flex:1" onclick="addBot()">Save Bot</button>
+        <button class="btn" style="background:#334155;color:#fff" onclick="toggleAddForm()">Cancel</button>
+      </div>
     </div>
+
+    <button class="btn btn-wake" onclick="wakeAll()">🚀 Wake Up All Bots Now</button>
+    <div id="botList"></div>
   </div>
-</div>
 
-<script>
-const DEFAULT_BOTS = [
-  { id: "bot1", name: "1. Dynamic QR & Payment Bot", url: "", tg: "" },
-  { id: "bot2", name: "2. Bot Helper & Studio", url: "", tg: "" },
-  { id: "bot3", name: "3. AVISHA Message Bot", url: "", tg: "" }
-];
+  <script>
+    const defaultBots = [
+      { id: 1, name: "Dynamic QR & Payment Studio", url: "https://onrender.com", user: "@AvimDynamicQRBot" },
+      { id: 2, name: "Bot Helper & Studio", url: "", user: "" },
+      { id: 3, name: "AVISHA Connect (Message Bot)", url: "", user: "" }
+    ];
+    let bots = JSON.parse(localStorage.getItem("avim_master_bots") || "null") || defaultBots;
+    let secondsLeft = 300; // 5 minutes
 
-let bots = JSON.parse(localStorage.getItem("avim_hub_bots")) || DEFAULT_BOTS;
+    function saveBots() { localStorage.setItem("avim_master_bots", JSON.stringify(bots)); }
+    function toggleAddForm() {
+      const f = document.getElementById("addForm");
+      f.style.display = f.style.display === "block" ? "none" : "block";
+    }
 
-function renderBots() {
-  const list = document.getElementById("botList");
-  list.innerHTML = "";
-  bots.forEach((b, idx) => {
-    const tgHref = b.tg ? (b.tg.startsWith("http") ? b.tg : "https://t.me/" + b.tg.replace("@", "")) : "#";
-    const hasUrl = b.url && b.url.trim() !== "";
-    list.innerHTML += `
-      <div class="card">
-        <div class="card-top">
-          <div class="bot-title">${b.name}</div>
-          <div class="status" id="status-${idx}">${hasUrl ? "🟡 Waking Up..." : "⚪ Link Not Set"}</div>
-        </div>
-        <div class="input-row">
-          <input type="text" id="msg-${idx}" placeholder="Yahan kuchh bhi type karein (e.g. hi)..." onkeydown="if(event.key==='Enter') wakeOne(${idx})">
-          <button class="btn-send" onclick="wakeOne(${idx})">⚡ Wake & Send</button>
-        </div>
-        <div class="actions">
-          <span class="msg-log" id="log-${idx}">${hasUrl ? "Server ready ho raha hai" : "Upar ⚙️ Links dabakar URL dalein"}</span>
-          ${b.tg ? `<a class="tg-link" href="${tgHref}" target="_blank">Open Telegram ↗</a>` : ""}
-        </div>
-      </div>
-    `;
-  });
-}
+    function addBot() {
+      const name = document.getElementById("bName").value.trim();
+      const url = document.getElementById("bUrl").value.trim();
+      const user = document.getElementById("bUser").value.trim();
+      if (!name || !url) return alert("Bot Name aur Render Link zaroor dalein!");
+      bots.push({ id: Date.now(), name, url, user });
+      saveBots();
+      document.getElementById("bName").value = "";
+      document.getElementById("bUrl").value = "";
+      document.getElementById("bUser").value = "";
+      toggleAddForm(); render(); wakeAll();
+    }
 
-function pingServer(idx, text) {
-  const b = bots[idx];
-  const statusEl = document.getElementById(`status-${idx}`);
-  const logEl = document.getElementById(`log-${idx}`);
-  if (!b.url || !b.url.trim()) {
-    statusEl.textContent = "⚪ Link Not Set";
-    logEl.textContent = "Pehle ⚙️ Links me Render URL dalein";
-    return;
-  }
-  let cleanUrl = b.url.trim();
-  if (!cleanUrl.startsWith("http")) cleanUrl = "https://" + cleanUrl;
-  const pingUrl = cleanUrl + (cleanUrl.includes("?") ? "&" : "?") + "wake=" + Date.now() + (text ? "&msg=" + encodeURIComponent(text) : "");
+    function deleteBot(id) {
+      if (!confirm("Is bot ko hatana chahte hain?")) return;
+      bots = bots.filter(b => b.id !== id);
+      saveBots(); render();
+    }
 
-  statusEl.className = "status";
-  statusEl.textContent = "🟡 Waking Up...";
-  logEl.textContent = text ? `Signal bheja: "${text}"` : "Server ko jagaya ja raha hai...";
+    function editUrl(id) {
+      const bot = bots.find(b => b.id === id);
+      if (!bot) return;
+      const newUrl = prompt("Naya Render Link dalein:", bot.url);
+      if (newUrl !== null) {
+        bot.url = newUrl.trim();
+        const newUser = prompt("Telegram Username (@Bot) dalein:", bot.user);
+        if (newUser !== null) bot.user = newUser.trim();
+        saveBots(); render(); wakeSingle(bot);
+      }
+    }
 
-  fetch(pingUrl, { mode: "no-cors" })
-    .then(() => {
-      statusEl.className = "status online";
-      statusEl.textContent = "🟢 Online & Ready";
-      logEl.textContent = text ? `✅ "${text}" bheja gaya • Bot Jaag Gaya!` : "✅ Server Jaag Gaya! Telegram check karein.";
-    })
-    .catch(() => {
-      statusEl.className = "status online";
-      statusEl.textContent = "🟢 Signal Sent";
-      logEl.textContent = "Signal bhej diya gaya hai, 5 sec me Telegram check karein.";
-    });
-}
+    function wakeSingle(bot, customMsg) {
+      const st = document.getElementById("st-" + bot.id);
+      if (!bot.url) { if (st) st.innerHTML = "⚪ No Link"; return; }
+      if (st) st.innerHTML = "🟡 Waking...";
+      const pingUrl = bot.url.replace(/\/$/, "") + "/?wake=" + Date.now() + (customMsg ? "&msg=" + encodeURIComponent(customMsg) : "");
+      fetch(pingUrl, { mode: "no-cors" })
+        .then(() => { if (st) st.innerHTML = '<span class="dot"></span> Online'; })
+        .catch(() => { if (st) st.innerHTML = '<span class="dot"></span> Active'; });
+    }
 
-function wakeOne(idx) {
-  const input = document.getElementById(`msg-${idx}`);
-  const txt = input.value.trim() || "wake";
-  pingServer(idx, txt);
-  input.value = "";
-}
+    function wakeAll() {
+      bots.forEach(b => wakeSingle(b));
+      secondsLeft = 300;
+    }
 
-function wakeAll() {
-  bots.forEach((_, idx) => pingServer(idx, ""));
-}
+    function sendMsg(id) {
+      const bot = bots.find(b => b.id === id);
+      const inp = document.getElementById("msg-" + id);
+      if (!bot || !bot.url) return alert("Pehle Edit Link dabakar Render URL set karein!");
+      wakeSingle(bot, inp.value || "ping");
+      inp.value = "";
+    }
 
-function openSettings() {
-  const box = document.getElementById("settingsFields");
-  box.innerHTML = "";
-  bots.forEach((b, idx) => {
-    box.innerHTML += `
-      <div class="field">
-        <label>${b.name}</label>
-        <input type="text" id="set-name-${idx}" value="${b.name}" placeholder="Bot ka Naam">
-        <input type="url" id="set-url-${idx}" value="${b.url}" placeholder="Render URL (https://...onrender.com)">
-        <input type="text" id="set-tg-${idx}" value="${b.tg}" placeholder="Telegram Username (@YourBot)">
-      </div>
-    `;
-  });
-  document.getElementById("settingsModal").style.display = "block";
-}
+    function render() {
+      document.getElementById("botList").innerHTML = bots.map(b => {
+        const tgLink = b.user ? "https://t.me" + b.user.replace("@", "") : "#";
+        return `
+          <div class="card">
+            <div class="card-top">
+              <span class="bot-title">${b.name}</span>
+              <span class="status" id="st-${b.id}">⏳ Checking</span>
+            </div>
+            <div class="url-text">${b.url || "⚠️ Render URL set nahi hai"}</div>
+            <div class="row">
+              <input id="msg-${b.id}" placeholder="Type to wake & send..." />
+              <button class="btn btn-primary" onclick="sendMsg(${b.id})">⚡ Wake</button>
+            </div>
+            <div class="actions">
+              ${b.user ? `<a class="btn-tg" href="${tgLink}" target="_blank">Open Telegram</a>` : ""}
+              <button class="btn" style="background:#334155;color:#fff;flex:1" onclick="editUrl(${b.id})">✏️ Edit</button>
+              <button class="btn-del" onclick="deleteBot(${b.id})">🗑️</button>
+            </div>
+          </div>`;
+      }).join("");
+    }
 
-function closeSettings() {
-  document.getElementById("settingsModal").style.display = "none";
-}
+    setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft <= 0) wakeAll();
+      const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+      const s = String(secondsLeft % 60).padStart(2, '0');
+      document.getElementById("countdown").innerText = `Next Ping: ${m}:${s}`;
+    }, 1000);
 
-function saveSettings() {
-  bots.forEach((b, idx) => {
-    b.name = document.getElementById(`set-name-${idx}`).value.trim() || b.name;
-    b.url = document.getElementById(`set-url-${idx}`).value.trim();
-    b.tg = document.getElementById(`set-tg-${idx}`).value.trim();
-  });
-  localStorage.setItem("avim_hub_bots", JSON.stringify(bots));
-  closeSettings();
-  renderBots();
-  wakeAll();
-}
-
-renderBots();
-wakeAll();
-</script>
+    render();
+    wakeAll();
+  </script>
 </body>
 </html>
