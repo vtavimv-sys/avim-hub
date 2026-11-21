@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coder Avim — Master Bot Hub</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+  body { background: #0b0f19; color: #f1f5f9; padding: 16px; min-height: 100vh; }
+  .container { max-width: 540px; margin: 0 auto; }
+  header { display: flex; justify-content: space-between; align-items: center; background: #131b2e; padding: 14px 16px; border-radius: 14px; border: 1px solid #1e293b; margin-bottom: 14px; }
+  h1 { font-size: 18px; color: #38bdf8; }
+  .sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+  .btn-group { display: flex; gap: 8px; }
+  button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; padding: 9px 12px; transition: 0.2s; }
+  .btn-wake-all { background: #2563eb; color: #fff; }
+  .btn-wake-all:active { transform: scale(0.97); }
+  .btn-settings { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; }
+  .card { background: #131b2e; border: 1px solid #1e293b; border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .bot-title { font-size: 16px; font-weight: 700; color: #f8fafc; }
+  .status { font-size: 12px; padding: 4px 10px; border-radius: 20px; background: #1e293b; color: #fbbf24; font-weight: 600; }
+  .status.online { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+  .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  input[type="text"], input[type="url"] { flex: 1; background: #0b0f19; border: 1px solid #334155; color: #fff; padding: 10px 12px; border-radius: 10px; font-size: 13px; outline: none; }
+  input:focus { border-color: #38bdf8; }
+  .btn-send { background: #0284c7; color: #fff; white-space: nowrap; }
+  .actions { display: flex; justify-content: space-between; align-items: center; }
+  .tg-link { color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .msg-log { font-size: 12px; color: #94a3b8; }
+  #settingsModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); padding: 16px; z-index: 50; overflow-y: auto; }
+  .modal-box { background: #131b2e; border: 1px solid #334155; border-radius: 16px; max-width: 480px; margin: 20px auto; padding: 18px; }
+  .modal-box h2 { font-size: 17px; color: #38bdf8; margin-bottom: 12px; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 4px; }
+  .field input { width: 100%; margin-bottom: 6px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .btn-save { background: #10b981; color: #fff; }
+  .footer-note { text-align: center; font-size: 12px; color: #64748b; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>⚡ Coder Avim Master Hub</h1>
+      <div class="sub">Sabhi Telegram Bots ko 1-Click me Jagayein</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn-wake-all" onclick="wakeAll()">🚀 Wake All</button>
+      <button class="btn-settings" onclick="openSettings()">⚙️ Links</button>
+    </div>
+  </header>
+
+  <div id="botList"></div>
+
+  <div class="footer-note">Powered by Coder Avim • Auto Wake-Up Active</div>
+</div>
+
+<div id="settingsModal">
+  <div class="modal-box">
+    <h2>⚙️ Apne Bots ke Links Set Karein</h2>
+    <div id="settingsFields"></div>
+    <div class="modal-footer">
+      <button class="btn-settings" onclick="closeSettings()">Cancel</button>
+      <button class="btn-save" onclick="saveSettings()">💾 Save Links</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_BOTS = [
+  { id: "bot1", name: "1. Dynamic QR & Payment Bot", url: "", tg: "" },
+  { id: "bot2", name: "2. Bot Helper & Studio", url: "", tg: "" },
+  { id: "bot3", name: "3. AVISHA Message Bot", url: "", tg: "" }
+];
+
+let bots = JSON.parse(localStorage.getItem("avim_hub_bots")) || DEFAULT_BOTS;
+
+function renderBots() {
+  const list = document.getElementById("botList");
+  list.innerHTML = "";
+  bots.forEach((b, idx) => {
+    const tgHref = b.tg ? (b.tg.startsWith("http") ? b.tg : "https://t.me/" + b.tg.replace("@", "")) : "#";
+    const hasUrl = b.url && b.url.trim() !== "";
+    list.innerHTML += `
+      <div class="card">
+        <div class="card-top">
+          <div class="bot-title">${b.name}</div>
+          <div class="status" id="status-${idx}">${hasUrl ? "🟡 Waking Up..." : "⚪ Link Not Set"}</div>
+        </div>
+        <div class="input-row">
+          <input type="text" id="msg-${idx}" placeholder="Yahan kuchh bhi type karein (e.g. hi)..." onkeydown="if(event.key==='Enter') wakeOne(${idx})">
+          <button class="btn-send" onclick="wakeOne(${idx})">⚡ Wake & Send</button>
+        </div>
+        <div class="actions">
+          <span class="msg-log" id="log-${idx}">${hasUrl ? "Server ready ho raha hai" : "Upar ⚙️ Links dabakar URL dalein"}</span>
+          ${b.tg ? `<a class="tg-link" href="${tgHref}" target="_blank">Open Telegram ↗</a>` : ""}
+        </div>
+      </div>
+    `;
+  });
+}
+
+function pingServer(idx, text) {
+  const b = bots[idx];
+  const statusEl = document.getElementById(`status-${idx}`);
+  const logEl = document.getElementById(`log-${idx}`);
+  if (!b.url || !b.url.trim()) {
+    statusEl.textContent = "⚪ Link Not Set";
+    logEl.textContent = "Pehle ⚙️ Links me Render URL dalein";
+    return;
+  }
+  let cleanUrl = b.url.trim();
+  if (!cleanUrl.startsWith("http")) cleanUrl = "https://" + cleanUrl;
+  const pingUrl = cleanUrl + (cleanUrl.includes("?") ? "&" : "?") + "wake=" + Date.now() + (text ? "&msg=" + encodeURIComponent(text) : "");
+
+  statusEl.className = "status";
+  statusEl.textContent = "🟡 Waking Up...";
+  logEl.textContent = text ? `Signal bheja: "${text}"` : "Server ko jagaya ja raha hai...";
+
+  fetch(pingUrl, { mode: "no-cors" })
+    .then(() => {
+      statusEl.className = "status online";
+      statusEl.textContent = "🟢 Online & Ready";
+      logEl.textContent = text ? `✅ "${text}" bheja gaya • Bot Jaag Gaya!` : "✅ Server Jaag Gaya! Telegram check karein.";
+    })
+    .catch(() => {
+      statusEl.className = "status online";
+      statusEl.textContent = "🟢 Signal Sent";
+      logEl.textContent = "Signal bhej diya gaya hai, 5 sec me Telegram check karein.";
+    });
+}
+
+function wakeOne(idx) {
+  const input = document.getElementById(`msg-${idx}`);
+  const txt = input.value.trim() || "wake";
+  pingServer(idx, txt);
+  input.value = "";
+}
+
+function wakeAll() {
+  bots.forEach((_, idx) => pingServer(idx, ""));
+}
+
+function openSettings() {
+  const box = document.getElementById("settingsFields");
+  box.innerHTML = "";
+  bots.forEach((b, idx) => {
+    box.innerHTML += `
+      <div class="field">
+        <label>${b.name}</label>
+        <input type="text" id="set-name-${idx}" value="${b.name}" placeholder="Bot ka Naam">
+        <input type="url" id="set-url-${idx}" value="${b.url}" placeholder="Render URL (https://...onrender.com)">
+        <input type="text" id="set-tg-${idx}" value="${b.tg}" placeholder="Telegram Username (@YourBot)">
+      </div>
+    `;
+  });
+  document.getElementById("settingsModal").style.display = "block";
+}
+
+function closeSettings() {
+  document.getElementById("settingsModal").style.display = "none";
+}
+
+function saveSettings() {
+  bots.forEach((b, idx) => {
+    b.name = document.getElementById(`set-name-${idx}`).value.trim() || b.name;
+    b.url = document.getElementById(`set-url-${idx}`).value.trim();
+    b.tg = document.getElementById(`set-tg-${idx}`).value.trim();
+  });
+  localStorage.setItem("avim_hub_bots", JSON.stringify(bots));
+  closeSettings();
+  renderBots();
+  wakeAll();
+}
+
+renderBots();
+wakeAll();
+</script>
+</body>
+</html>
